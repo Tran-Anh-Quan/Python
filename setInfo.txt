@@ -1,0 +1,6 @@
+ten:Tran Manh Quan
+tuoi:26
+email:manhquan@gmail.com
+skype:deo co
+diachi:26
+noilamviec:29
