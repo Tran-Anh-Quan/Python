@@ -1,13 +1,24 @@
-from math_utils import (
-    chia_ps,
-    chu_vi_hinh_chu_nhat,
-    chu_vi_hinh_tron,
-    cong_ps,
-    dien_tich_hinh_chu_nhat,
-    dien_tich_hinh_tron,
-    nhan_ps,
-    tru_ps,
-)
+try:
+    # Chay duoc khi goi: python -m math_utils.main
+    from math_utils import (
+        chia_ps,
+        chu_vi_hinh_chu_nhat,
+        chu_vi_hinh_tron,
+        cong_ps,
+        dien_tich_hinh_chu_nhat,
+        dien_tich_hinh_tron,
+        nhan_ps,
+        tru_ps,
+    )
+except ModuleNotFoundError:
+    # Chay duoc khi goi truc tiep file main.py ben trong thu muc math_utils
+    from hinhhoc import (
+        chu_vi_hinh_chu_nhat,
+        chu_vi_hinh_tron,
+        dien_tich_hinh_chu_nhat,
+        dien_tich_hinh_tron,
+    )
+    from phanso import chia_ps, cong_ps, nhan_ps, tru_ps
 
 
 def dinh_dang_phan_so(ps: tuple[int, int]) -> str:
