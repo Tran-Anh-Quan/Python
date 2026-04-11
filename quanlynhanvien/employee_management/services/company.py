@@ -5,6 +5,7 @@ class Company:
     def __init__(self, name="Công ty ABC"):
         self.name = name
         self.employees = {} # emp_id -> Employee object
+        self.terminated_employees = []
 
     def add_employee(self, employee):
         if employee.emp_id in self.employees:
@@ -41,3 +42,61 @@ class Company:
 
     def get_top_3_salaries(self):
         return sorted(self.employees.values(), key=lambda x: x.calculate_salary(), reverse=True)[:3]
+
+    def get_employees_sorted_by_projects(self):
+        return sorted(self.employees.values(), key=lambda e: len(e.projects), reverse=True)
+
+    def get_employees_by_project(self, project_name):
+        normalized_name = project_name.strip().lower()
+        results = [
+            e for e in self.employees.values()
+            if any(p.lower() == normalized_name for p in e.projects)
+        ]
+        if not results:
+            raise EmployeeNotFoundError(project_name, "Không có nhân viên tham gia dự án")
+        return results
+
+    def get_project_participants(self):
+        results = [e for e in self.employees.values() if len(e.projects) > 0]
+        if not results:
+            raise EmployeeNotFoundError("project", "Không có nhân viên tham gia dự án")
+        return sorted(results, key=lambda e: len(e.projects), reverse=True)
+
+    def calculate_termination_compensation(self, employee, days_without_work, days_notice_violation, workdays_per_month=26):
+        if days_without_work < 0 or days_notice_violation < 0:
+            raise ValueError("Số ngày không được âm")
+        if workdays_per_month <= 0:
+            raise ValueError("Số ngày công chuẩn phải lớn hơn 0")
+
+        monthly_salary = employee.base_salary
+        daily_salary = monthly_salary / workdays_per_month
+        return (monthly_salary * 2) + (daily_salary * days_without_work) + (daily_salary * days_notice_violation)
+
+    def terminate_employee(self, emp_id, days_without_work=0, days_notice_violation=0, workdays_per_month=26):
+        employee = self.find_employee_by_id(emp_id)
+        compensation = self.calculate_termination_compensation(
+            employee,
+            days_without_work,
+            days_notice_violation,
+            workdays_per_month,
+        )
+        self.terminated_employees.append(
+            {
+                "id": employee.emp_id,
+                "name": employee.name,
+                "type": employee.__class__.__name__,
+                "compensation": compensation,
+            }
+        )
+        del self.employees[emp_id]
+        return employee
+
+    def reduce_salary(self, emp_id, amount):
+        if amount <= 0:
+            raise ValueError("Số tiền giảm lương phải lớn hơn 0")
+        employee = self.find_employee_by_id(emp_id)
+        new_salary = employee.base_salary - amount
+        if new_salary <= 0:
+            raise ValueError("Lương sau khi giảm phải lớn hơn 0")
+        employee.base_salary = new_salary
+        return employee
